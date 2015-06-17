@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: sean mooney <sean.k.mooney@intel.com>
+Code-Review+2: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Workflow+1: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 17 Jun 2015 13:43:37 +0000
+Reviewed-on: https://review.openstack.org/192658
+Project: stackforge/intel-nfv-ci-tests
+Branch: refs/heads/master
