@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to intel-nfv-ci-tests's documentation!
-======================================
+==============================================
 
 Contents:
 
