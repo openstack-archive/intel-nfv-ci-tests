@@ -1,6 +1,6 @@
-===============================
+==================
 intel-nfv-ci-tests
-===============================
+==================
 
 .. image:: https://img.shields.io/travis/stackforge/intel-nfv-ci-tests.svg
         :target: https://travis-ci.org/stackforge/intel-nfv-ci-tests
