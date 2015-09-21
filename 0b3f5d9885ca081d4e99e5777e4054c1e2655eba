@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Workflow+1: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 21 Sep 2015 15:24:06 +0000
+Reviewed-on: https://review.openstack.org/218928
+Project: stackforge/intel-nfv-ci-tests
+Branch: refs/heads/master
