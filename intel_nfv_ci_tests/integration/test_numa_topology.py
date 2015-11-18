@@ -108,13 +108,13 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
 
     def verify_ssh(self):
         # Obtain a floating IP
-        floating_ip = self.floating_ips_client.create_floating_ip()[
+        floating_ip = self.compute_floating_ips_client.create_floating_ip()[
             'floating_ip']
         self.addCleanup(self.delete_wrapper,
-                        self.floating_ips_client.delete_floating_ip,
+                        self.compute_floating_ips_client.delete_floating_ip,
                         floating_ip['id'])
         # Attach a floating IP
-        self.floating_ips_client.associate_floating_ip_to_server(
+        self.compute_floating_ips_client.associate_floating_ip_to_server(
             floating_ip['ip'], self.instance['id'])
         # Check ssh
         return self.get_remote_client(
