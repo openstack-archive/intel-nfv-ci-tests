@@ -1,7 +1,7 @@
 import subprocess
 
 from tempest import clients
-from tempest.common import cred_provider
+from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
 from tempest.scenario import manager
 from tempest_lib.common.utils import data_utils
@@ -59,7 +59,7 @@ class TestHugepages(manager.ScenarioTest):
     def setup_credentials(cls):
         super(TestHugepages, cls).setup_credentials()
         cls.manager = clients.Manager(
-            credentials=cred_provider.get_configured_credentials(
+            credentials=common_creds.get_configured_credentials(
                 'identity_admin', fill_in=False))
 
     def setUp(self):
