@@ -127,7 +127,7 @@ class TestHugepages(manager.ScenarioTest):
 
         flavor_id = self.create_flavor_with_extra_specs("hugepages_flavor")
 
-        self.create_server(wait_on_boot=True, flavor=flavor_id)
+        self.create_server(flavor=flavor_id, wait_until='ACTIVE')
 
         required_hugepages = 64 / (HUGEPAGE_SIZE / 1024.)  # ram/hugepages_size
         expected_hugepages = int(hugepages_init - required_hugepages)
