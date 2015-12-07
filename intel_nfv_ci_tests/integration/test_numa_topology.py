@@ -104,7 +104,7 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         self.instance = self.create_server(
             image=self.image_ref,
             flavor=flavor,
-            create_kwargs=create_kwargs)
+            **create_kwargs)
 
     def verify_ssh(self):
         # Obtain a floating IP
