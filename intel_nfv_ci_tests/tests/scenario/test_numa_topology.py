@@ -102,9 +102,9 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         if flavor is None:
             flavor = self.create_flavor_with_numa()
         self.instance = self.create_server(
-            image=self.image_ref,
+            image_id=self.image_ref,
             flavor=flavor,
-            create_kwargs=create_kwargs)
+            **create_kwargs)
 
     def verify_ssh(self):
         # Obtain a floating IP
