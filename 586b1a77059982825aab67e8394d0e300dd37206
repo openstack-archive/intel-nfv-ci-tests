@@ -1,0 +1,12 @@
+Code-Review+2: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Code-Review+1: venkatamahesh <venkatamaheshkotha@gmail.com>
+Code-Review+1: Reedip <reedip.banerjee@nectechnologies.in>
+Code-Review+1: Yatin Kumbhare <yatinkumbhare@gmail.com>
+Code-Review+2: sean mooney <sean.k.mooney@intel.com>
+Workflow+1: sean mooney <sean.k.mooney@intel.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Thu, 07 Jan 2016 15:48:13 +0000
+Reviewed-on: https://review.openstack.org/260486
+Project: openstack/intel-nfv-ci-tests
+Branch: refs/heads/master
