@@ -162,18 +162,17 @@ class FlavorsAdminTestJSON(base.BaseV2ComputeAdminTest):
         flavor = self._create_flavor(cpu_policy='shared')
         self._create_server(flavor)
 
-    @decorators.skip_because(bug='0')
-    def test_cpu_dedicated_threads_separate(self):
+    def test_cpu_dedicated_threads_isolate(self):
         """Ensure vCPUs *are not* placed on thread siblings."""
         flavor = self._create_flavor(
-            cpu_policy='dedicated', cpu_threads_policy='separate')
+            cpu_policy='dedicated', cpu_threads_policy='isolate')
         server = self._create_server(flavor)
         cpu_pinnings = self._get_cpu_pinning(server)
         core_mappings = get_core_mappings()
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
-        # if the 'prefer' policy is used, then when one thread is used
+        # if the 'isolate' policy is used, then when one thread is used
         # the other should never be used.
         for vcore in set(cpu_pinnings):
             pcpu = cpu_pinnings[vcore]
