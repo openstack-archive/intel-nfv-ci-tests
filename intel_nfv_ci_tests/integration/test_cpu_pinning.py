@@ -42,7 +42,9 @@ def get_core_mappings():
     The physical cores are assigned indexes first (0-based) and start
     at node 0. The virtual cores are then listed.
 
-        >>> get_core_mappings(2)
+        >>> multiprocessing.cpu_count()
+        2
+        >>> get_core_mappings()
         {0: ([0, 1], [4, 5]), 1: ([2, 3], [6, 7])}
     """
     # get number of real CPUs per socket, assuming a dual-socket,
