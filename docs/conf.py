@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'intel_nfv_ci_tests'
-copyright = u'2015, Waldemar Znoinski'
+copyright = u'2015-present, Intel Corporation'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -210,7 +210,7 @@ latex_elements = {
 latex_documents = [
     ('index', 'intel-nfv-ci-tests.tex',
      u'intel-nfv-ci-tests Documentation',
-     u'Waldemar Znoinski', 'manual'),
+     u'Intel Corporation', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -241,7 +241,7 @@ latex_documents = [
 man_pages = [
     ('index', 'intel-nfv-ci-tests',
      u'intel-nfv-ci-tests Documentation',
-     [u'Waldemar Znoinski'], 1)
+     [u'Intel Corporation'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -256,7 +256,7 @@ man_pages = [
 texinfo_documents = [
     ('index', 'intel-nfv-ci-tests',
      u'intel-nfv-ci-tests Documentation',
-     u'Waldemar Znoinski',
+     u'Intel Corporation',
      'intel-nfv-ci-tests',
      'One line description of project.',
      'Miscellaneous'),
