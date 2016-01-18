@@ -44,7 +44,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Intel Corporation",
     author_email='waldemar.znoinski@intel.com',
-    url='https://github.com/stackforge/intel-nfv-ci-tests',
+    url='https://github.com/openstack/intel-nfv-ci-tests',
     packages=[
         'intel_nfv_ci_tests',
     ],
