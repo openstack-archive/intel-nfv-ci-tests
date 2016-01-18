@@ -58,28 +58,28 @@ def get_core_mappings():
     return core_mappings
 
 
-class FlavorsAdminTestJSON(base.BaseV2ComputeAdminTest):
+class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
     """
-    Tests Flavors API Create and Delete that require admin privileges
+    Tests CPU policy support.
     """
 
     @classmethod
     def skip_checks(cls):
-        super(FlavorsAdminTestJSON, cls).skip_checks()
+        super(CPUPolicyTest, cls).skip_checks()
         if not test.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
             msg = "OS-FLV-EXT-DATA extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
-        super(FlavorsAdminTestJSON, cls).setup_clients()
+        super(CPUPolicyTest, cls).setup_clients()
         cls.flavors_client = cls.os_adm.flavors_client
         cls.servers_client = cls.os_adm.servers_client
 
     @classmethod
     def resource_setup(cls):
-        super(FlavorsAdminTestJSON, cls).resource_setup()
+        super(CPUPolicyTest, cls).resource_setup()
 
         cls.flavor_name_prefix = 'test_hw_'
         cls.ram = 512
