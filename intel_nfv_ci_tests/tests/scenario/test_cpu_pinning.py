@@ -136,7 +136,7 @@ class FlavorsAdminTestJSON(base.BaseV2ComputeAdminTest):
         return server
 
     def _reboot_server(self, server, reboot_type):
-        self.servers_client.reboot_server(server['id'], reboot_type)
+        self.servers_client.reboot_server(server['id'], type=reboot_type)
 
         # get more information
         server = self.servers_client.show_server(server['id'])['server']
