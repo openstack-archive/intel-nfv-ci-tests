@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Copyright 2015 Intel Corporation
+# Copyright 2016 Intel Corporation
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,29 +13,22 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""
-test_intel-nfv-ci-tests
-----------------------------------
 
-Tests for `intel_nfv_ci_tests` module.
-"""
+import os
 
-import unittest
-
-from intel_nfv_ci_tests import intel_nfv_ci_tests
+from tempest.test_discover import plugins
 
 
-class TestIntel_nfv_ci_tests(unittest.TestCase):
+class IntelNFVPlugin(plugins.TempestPlugin):
+    def load_tests(self):
+        base_path = os.path.split(os.path.dirname(
+            os.path.abspath(__file__)))[0]
+        test_dir = "intel_nfv_ci_tests/tests"
+        full_test_dir = os.path.join(base_path, test_dir)
+        return full_test_dir, base_path
 
-    def setUp(self):
-        dummy = intel_nfv_ci_tests
-        repr(dummy)
-
-    def test_something(self):
+    def register_opts(self, conf):
         pass
 
-    def tearDown(self):
+    def get_opt_lists(self):
         pass
-
-if __name__ == '__main__':
-    unittest.main()
