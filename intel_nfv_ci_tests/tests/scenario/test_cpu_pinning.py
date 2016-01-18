@@ -113,7 +113,7 @@ class FlavorsAdminTestJSON(base.BaseV2ComputeAdminTest):
 
         specs = {'hw:cpu_policy': cpu_policy}
         if cpu_policy == 'dedicated':
-            specs['hw:cpu_threads_policy'] = cpu_threads_policy
+            specs['hw:cpu_thread_policy'] = cpu_threads_policy
 
         self.flavors_client.set_flavor_extra_spec(flavor['id'], **specs)
 
