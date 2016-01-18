@@ -41,3 +41,8 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+
+# pbr
+AUTHORS
+Authors
+ChangeLog
