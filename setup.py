@@ -37,7 +37,7 @@ setup(
                  'intel_nfv_ci_tests'},
     include_package_data=True,
     install_requires=requirements,
-    license="BSD",
+    license="Apache",
     zip_safe=False,
     keywords='intel_nfv_ci_tests',
     classifiers=[
