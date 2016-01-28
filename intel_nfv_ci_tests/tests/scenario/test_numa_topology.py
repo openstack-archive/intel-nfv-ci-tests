@@ -103,7 +103,7 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
             flavor = self.create_flavor_with_numa()
         self.instance = self.create_server(
             image=self.image_ref,
-            flavor=flavor,
+            flavor=flavor,wait_until='ACTIVE',
             create_kwargs=create_kwargs)
 
     def verify_ssh(self):
