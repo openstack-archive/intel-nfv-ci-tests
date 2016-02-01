@@ -1,0 +1,10 @@
+Code-Review+1: Stephen Finucane <stephen.finucane@intel.com>
+Code-Review+1: Václav Hejral <vaclavx.hejral@intel.com>
+Code-Review+2: sean mooney <sean.k.mooney@intel.com>
+Workflow+1: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 01 Feb 2016 11:50:01 +0000
+Reviewed-on: https://review.openstack.org/257408
+Project: openstack/intel-nfv-ci-tests
+Branch: refs/heads/master
