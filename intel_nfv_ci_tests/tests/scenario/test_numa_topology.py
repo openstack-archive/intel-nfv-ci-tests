@@ -104,6 +104,7 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         self.instance = self.create_server(
             image_id=self.image_ref,
             flavor=flavor,
+            wait_until='ACTIVE',
             **create_kwargs)
 
     def verify_ssh(self):
