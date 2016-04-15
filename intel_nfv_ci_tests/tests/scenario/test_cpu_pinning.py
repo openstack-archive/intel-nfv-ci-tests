@@ -14,7 +14,6 @@
 #    under the License.
 
 import libvirt
-import multiprocessing
 from tempest_lib.common.utils import data_utils
 from tempest_lib import decorators
 import testtools
@@ -29,34 +28,53 @@ from tempest import test
 CONF = config.CONF
 
 
-def get_core_mappings():
-    """Return core mapping for a dual-socket, HT-enabled board.
+def get_siblings_list(sib):
+    """
+    list of siblings can consist of comma-separated lists (0,5,6)
+    or hyphen-separated ranges (0-3) or both
 
-    Generate mappings for CPU. Has following structure:
+    Test a combination of '-' and ','
+    >>> get_siblings_list('0-2,3,4,5-6,9')
+    [0, 1, 2, 3, 4, 5, 6, 9]
+    """
+    siblings = []
+    for sub_sib in sib.split(','):
+        if '-' in sub_sib:
+            start_sib, end_sib = sub_sib.split('-')
+            siblings.extend(range(int(start_sib),
+                                  int(end_sib) + 1))
+        else:
+            siblings.append(int(sub_sib))
 
-        {numa_node_a: ([core_1_thread_a, core_2_thread_a, ...],
-                       [core_1_thread_b, core_2_thread_b, ...]),
+    return siblings
+
+
+def get_host_cpu_siblings():
+    """Return core to sibling mapping of the host CPUs
+
+        {core_0: [sibling_a, sibling_b, ...],
+         core_1: [sibling_a, sibling_b, ...],
          ...}
 
-    The physical cores are assigned indexes first (0-based) and start
-    at node 0. The virtual cores are then listed.
-
-        >>> multiprocessing.cpu_count()
-        2
-        >>> get_core_mappings()
-        {0: ([0, 1], [4, 5]), 1: ([2, 3], [6, 7])}
+    libvirt's getCapabilities() is called to get details about the host
+    then a list of siblings per CPU is extracted and formatted to single level
+    list
     """
-    # get number of real CPUs per socket, assuming a dual-socket,
-    # HT-enabled board (2 * 2)
-    cpu_per_soc = multiprocessing.cpu_count() / (2 * 2)
+    siblings = {}
+    conn = libvirt.openReadOnly('qemu:///system')
+    capxml = ET.fromstring(conn.getCapabilities())
+    cpu_cells = capxml.findall('./host/topology/cells/cell/cpus')
 
-    # calculate mappings
-    core_mappings = {
-        soc: (range(soc * cpu_per_soc, (soc + 1) * cpu_per_soc),
-              range((soc + 2) * cpu_per_soc, (soc + 3) * cpu_per_soc))
-        for soc in range(0, 2)
-    }
-    return core_mappings
+    for cell in cpu_cells:
+        cpus = cell.findall('cpu')
+        for cpu in cpus:
+            cpu_id = int(cpu.get('id'))
+            sib = cpu.get('siblings')
+            _siblings = get_siblings_list(sib)
+
+            siblings.update({cpu_id: _siblings})
+
+    return siblings
 
 
 class CPUPolicyTest(base.BaseV2ComputeAdminTest):
@@ -167,22 +185,17 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             cpu_policy='dedicated', cpu_threads_policy='isolate')
         server = self._create_server(flavor)
         cpu_pinnings = self._get_cpu_pinning(server)
-        core_mappings = get_core_mappings()
+        pcpu_siblings = get_host_cpu_siblings()
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
         # if the 'isolate' policy is used, then when one thread is used
         # the other should never be used.
-        for vcore in set(cpu_pinnings):
-            pcpu = cpu_pinnings[vcore]
-            if pcpu in core_mappings[0][0]:
-                index = core_mappings[0][0].index(pcpu)
-                self.assertNotIn(core_mappings[0][1][index],
-                                 cpu_pinnings.values())
-            else:
-                index = core_mappings[0][1].index(pcpu)
-                self.assertNotIn(core_mappings[0][0][index],
-                                 cpu_pinnings.values())
+        for vcpu in set(cpu_pinnings):
+            pcpu = cpu_pinnings[vcpu]
+            sib = pcpu_siblings[pcpu]
+            sib.remove(pcpu)
+            self.assertTrue(set(sib).isdisjoint(cpu_pinnings.values()))
 
     def test_cpu_dedicated_threads_prefer(self):
         """Ensure vCPUs *are* placed on thread siblings."""
@@ -190,22 +203,17 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             cpu_policy='dedicated', cpu_threads_policy='prefer')
         server = self._create_server(flavor)
         cpu_pinnings = self._get_cpu_pinning(server)
-        core_mappings = get_core_mappings()
+        pcpu_siblings = get_host_cpu_siblings()
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
         # if the 'prefer' policy is used, then when one thread is used
         # the other should also be used.
-        for vcore in set(cpu_pinnings):
-            pcpu = cpu_pinnings[vcore]
-            if pcpu in core_mappings[0][0]:
-                index = core_mappings[0][0].index(pcpu)
-                self.assertIn(core_mappings[0][1][index],
-                              cpu_pinnings.values())
-            else:
-                index = core_mappings[0][1].index(pcpu)
-                self.assertIn(core_mappings[0][0][index],
-                              cpu_pinnings.values())
+        for vcpu in set(cpu_pinnings):
+            pcpu = cpu_pinnings[vcpu]
+            sib = pcpu_siblings[pcpu]
+            sib.remove(pcpu)
+            self.assertFalse(set(sib).isdisjoint(cpu_pinnings.values()))
 
     @decorators.skip_because(bug='0')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
