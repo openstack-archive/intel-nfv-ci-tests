@@ -101,8 +101,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         super(CPUPolicyTest, cls).resource_setup()
 
         cls.flavor_name_prefix = 'test_hw_'
-        cls.ram = 512
-        cls.vcpus = 4
+        cls.ram = 64
+        cls.vcpus = 2
         cls.disk = 0
         cls.ephemeral = 0
         cls.swap = 0
