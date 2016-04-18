@@ -255,6 +255,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
+    @decorators.skip_because(bug='1571723')
     def test_oversubscribed_server(self):
         flavor = self._create_flavor(
             cpu_policy='dedicated', cpu_threads_policy='prefer')
