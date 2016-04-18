@@ -17,7 +17,6 @@ import libvirt
 import multiprocessing
 from tempest_lib.common.utils import data_utils
 from tempest_lib import decorators
-from tempest_lib import exceptions as lib_exc
 import testtools
 import xml.etree.ElementTree as ET
 
@@ -254,15 +253,3 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         cpu_pinnings = self._get_cpu_pinning(server)
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
-
-    def test_oversubscribed_server(self):
-        flavor = self._create_flavor(
-            cpu_policy='dedicated', cpu_threads_policy='prefer')
-
-        # TODO(sfinucan) - this relies on the fact that the CPU quota
-        # is 20 which isn't truly representative. Find out how to
-        # change the quotas programatically.
-        for _ in xrange(0, 5):
-            self._create_server(flavor)
-
-        self.assertRaises(lib_exc.Forbidden, self._create_server, flavor)
