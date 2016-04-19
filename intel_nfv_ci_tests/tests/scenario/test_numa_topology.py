@@ -22,7 +22,7 @@ from tempest import config
 from tempest.scenario import manager
 from tempest.scenario import utils as test_utils
 from tempest import test
-from tempest_lib.common.utils import data_utils
+from tempest.lib.common.utils import data_utils
 
 CONF = config.CONF
 

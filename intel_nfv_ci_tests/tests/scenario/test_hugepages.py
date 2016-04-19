@@ -19,7 +19,7 @@ from tempest import clients
 from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
 from tempest.scenario import manager
-from tempest_lib.common.utils import data_utils
+from tempest.lib.common.utils import data_utils
 
 
 # Using 2M hugepages
