@@ -156,7 +156,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
     def _reboot_server(self, server, reboot_type):
         self.servers_client.reboot_server(server['id'], type=reboot_type)
-
+        waiters.wait_for_server_status(self.servers_client,
+                                       server['id'], 'ACTIVE')
         # get more information
         server = self.servers_client.show_server(server['id'])['server']
 
