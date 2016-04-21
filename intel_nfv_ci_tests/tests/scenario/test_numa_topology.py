@@ -124,14 +124,20 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
             private_key=self.keypair['private_key'])
 
     def get_placement(self, vcpu):
-        out, _ = processutils.execute('pgrep --full %s' % self.instance['id'],
-                                      shell=True)
+
+        out, _ = processutils.execute('ps -eo pid,cmd,args | awk \'/%s/ && '
+                                      '!/grep/ {print $1}\'' %
+                                      self.instance['id'], shell=True)
+
         if not out:
             return
-        cgroup, _ = processutils.execute('grep name  /proc/%s/cgroup'
+        cgroup, _ = processutils.execute('grep cpuset /proc/%s/cgroup'
                                          % out.strip(), shell=True)
         cgroup = cgroup.split(":")[-1].strip()
+        if cgroup.index('emulator'):
+            cgroup = cgroup + '/..'
         placement = []
+
         for i in range(vcpu):
             cpus, _ = processutils.execute('cgget -n -v -r cpuset.cpus %s'
                                            % (cgroup.replace('\\', '\\\\') +
