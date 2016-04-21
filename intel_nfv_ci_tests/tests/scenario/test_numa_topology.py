@@ -202,32 +202,3 @@ class TestServerNumaTopo(TestServerNumaBase):
         self.assertNotEqual(placement[1], placement[2])
         self.assertEqual(placement[2], placement[3])
         self.servers_client.delete_server(self.instance['id'])
-
-
-class TestServerNumaPCI(TestServerNumaBase):
-    """
-    Tests in this class check if pci device
-    assigned to the VM is affinitized to the same
-    numa node as the VM itself.
-    """
-
-    def get_pci_numa_node(self, addr):
-        out, _ = processutils.execute('cat /sys/bus/pci/devices/%s/numa_node'
-                                      % addr, shell=True)
-        return out.strip()
-
-    @test.services('compute', 'network')
-    def test_server_numa_pci(self):
-        self.security_group = self._create_security_group(
-            tenant_id=self.tenant_id)
-        self.boot_instance(self.create_flavor_with_numa(1, 1024, 2, 0,
-                                                    {"pci_passthrough:alias":
-                                                    "niantic_vf:1"}))
-
-        placement = self.get_placement(1)
-        host_nodes = self.get_numa_nodes()
-        guest_numa = [host_nodes.index(x) for x in placement]
-        pci_node = 1
-        self.assertIn(int(pci_node), guest_numa)
-
-        self.servers_client.delete_server(self.instance['id'])
