@@ -74,8 +74,8 @@ class TestHugepages(manager.ScenarioTest):
     def setup_credentials(cls):
         super(TestHugepages, cls).setup_credentials()
         cls.manager = clients.Manager(
-            credentials=common_creds.get_configured_credentials(
-                'identity_admin', fill_in=False))
+            credentials=common_creds.get_configured_admin_credentials(
+                fill_in=False))
 
     def setUp(self):
         super(TestHugepages, self).setUp()
