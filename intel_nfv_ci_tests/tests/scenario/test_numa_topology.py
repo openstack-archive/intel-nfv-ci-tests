@@ -111,8 +111,7 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         # Obtain a floating IP
         floating_ip = self.compute_floating_ips_client.create_floating_ip()[
             'floating_ip']
-        self.addCleanup(self.delete_wrapper,
-                        self.compute_floating_ips_client.delete_floating_ip,
+        self.addCleanup(self.compute_floating_ips_client.delete_floating_ip,
                         floating_ip['id'])
         # Attach a floating IP
         self.compute_floating_ips_client.associate_floating_ip_to_server(
