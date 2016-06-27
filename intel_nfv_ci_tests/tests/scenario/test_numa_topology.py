@@ -21,14 +21,11 @@ from oslo_log import log as logging
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.scenario import manager
-from tempest.scenario import utils as test_utils
 from tempest import test
 
 CONF = config.CONF
 
 LOG = logging.getLogger(__name__)
-
-load_tests = test_utils.load_tests_input_scenario_utils
 
 
 class TestServerNumaBase(manager.NetworkScenarioTest):
@@ -44,21 +41,12 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         super(TestServerNumaBase, self).setUp()
         # Setup image and flavor the test instance
         # Support both configured and injected values
-        if not hasattr(self, 'image_ref'):
-            self.image_ref = CONF.compute.image_ref
-        if not hasattr(self, 'flavor_ref'):
-            self.flavor_ref = CONF.compute.flavor_ref
-        self.image_utils = test_utils.ImageUtils(self.manager)
-        if not self.image_utils.is_flavor_enough(self.flavor_ref,
-                                                 self.image_ref):
-            raise self.skipException(
-                '{image} does not fit in {flavor}'.format(
-                    image=self.image_ref, flavor=self.flavor_ref
-                )
-            )
-        self.run_ssh = True
+        self.image_ref = CONF.compute.image_ref
+        self.flavor_ref = CONF.compute.flavor_ref
+        self.run_ssh = CONF.validation.run_validation
+        self.ssh_user = CONF.validation.image_ssh_user
         self.keypair = self.create_keypair()
-        self.ssh_user = self.image_utils.ssh_user(self.image_ref)
+
         LOG.debug('Starting test for i:{image}, f:{flavor}. '
                   'Run ssh: {ssh}, user: {ssh_user}'.format(
                         image=self.image_ref, flavor=self.flavor_ref,
