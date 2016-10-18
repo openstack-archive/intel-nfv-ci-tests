@@ -5,7 +5,7 @@ intel-nfv-ci-tests
 A Tempest plugin providing integration tests for NFV features.
 
 This plugin is run as part of the
-`Intel NFV third-party CI <https://wiki.openstack.org/wiki/ThirdPartySystems/Intel-NFV-CI>`_.
+`Intel NFV third-party CI <https://wiki.openstack.org/wiki/ThirdPartySystems/Intel_NFV_CI>`_.
 
 Features
 --------
