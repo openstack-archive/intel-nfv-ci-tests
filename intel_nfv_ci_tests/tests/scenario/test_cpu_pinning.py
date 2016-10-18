@@ -216,7 +216,6 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             sib.remove(pcpu)
             self.assertFalse(set(sib).isdisjoint(cpu_pinnings.values()))
 
-    @decorators.skip_because(bug='0')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize not available.')
     def test_resize_pinned_server_to_unpinned(self):
@@ -233,7 +232,6 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         self.assertEqual(len(cpu_pinnings), 0)
 
-    @decorators.skip_because(bug='0')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize not available.')
     def test_resize_unpinned_server_to_pinned(self):
