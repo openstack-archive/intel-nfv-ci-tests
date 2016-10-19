@@ -15,7 +15,6 @@
 
 import libvirt
 from tempest.lib.common.utils import data_utils
-from tempest.lib import decorators
 import testtools
 import xml.etree.ElementTree as ET
 
@@ -147,7 +146,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         return server
 
     def _resize_server(self, server, flavor):
-        self.servers_client.resize(server['id'], flavor['id'])
+        self.servers_client.resize_server(server['id'], flavor['id'])
 
         # get more information
         server = self.servers_client.show_server(server['id'])['server']
@@ -216,7 +215,6 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             sib.remove(pcpu)
             self.assertFalse(set(sib).isdisjoint(cpu_pinnings.values()))
 
-    @decorators.skip_because(bug='0')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize not available.')
     def test_resize_pinned_server_to_unpinned(self):
@@ -233,7 +231,6 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         self.assertEqual(len(cpu_pinnings), 0)
 
-    @decorators.skip_because(bug='0')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize not available.')
     def test_resize_unpinned_server_to_pinned(self):
