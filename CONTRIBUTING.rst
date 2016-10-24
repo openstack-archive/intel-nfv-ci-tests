@@ -60,7 +60,7 @@ Ready to contribute? Here's how to set up `intel-nfv-ci-tests` for local develop
 1. Fork the `intel-nfv-ci-tests` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone https://github.com/stackforge/intel-nfv-ci-tests
+    $ git clone https://github.com/openstack/intel-nfv-ci-tests
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
@@ -100,7 +100,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.6, 2.7, 3.3, and 3.4, and for PyPy. Check
-   https://travis-ci.org/stackforge/intel-nfv-ci-tests/pull_requests
+   https://travis-ci.org/openstack/intel-nfv-ci-tests/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
