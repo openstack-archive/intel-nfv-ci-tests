@@ -162,8 +162,9 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
     def _reboot_server(self, server, reboot_type):
         self.servers_client.reboot_server(server['id'], type=reboot_type)
-        waiters.wait_for_server_status(self.servers_client,
-                                       server['id'], 'ACTIVE')
+        waiters.wait_for_server_status(self.servers_client, server['id'],
+                                       'ACTIVE')
+
         # get more information
         server = self.servers_client.show_server(server['id'])['server']
 
@@ -225,8 +226,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize not available.')
     def test_resize_pinned_server_to_unpinned(self):
-        flavor_a = self._create_flavor(
-            cpu_policy='dedicated', cpu_threads_policy='prefer')
+        flavor_a = self._create_flavor(cpu_policy='dedicated',
+                                       cpu_threads_policy='prefer')
         server = self._create_server(flavor_a)
         cpu_pinnings = self._get_cpu_pinning(server)
 
@@ -255,8 +256,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
     def test_reboot_pinned_server(self):
-        flavor_a = self._create_flavor(
-            cpu_policy='dedicated', cpu_threads_policy='prefer')
+        flavor_a = self._create_flavor(cpu_policy='dedicated',
+                                       cpu_threads_policy='prefer')
         server = self._create_server(flavor_a)
         cpu_pinnings = self._get_cpu_pinning(server)
 
