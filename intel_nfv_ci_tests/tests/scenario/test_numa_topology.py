@@ -177,8 +177,7 @@ class TestServerNumaTopo(TestServerNumaBase):
 
     @test.services('compute', 'network')
     def test_server_numa(self):
-        self.security_group = self._create_security_group(
-            tenant_id=self.tenant_id)
+        self.security_group = self._create_security_group()
         self.boot_instance()
         rmt_client = self.verify_ssh()
         topo = self.get_numa_topology(rmt_client)
