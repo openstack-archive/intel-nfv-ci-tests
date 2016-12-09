@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-import multiprocessing
 from oslo_concurrency import processutils
 from oslo_log import log as logging
 
@@ -131,20 +129,6 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
                                               '/vcpu' + str(i)), shell=True)
             placement.append(cpus.strip())
         return placement
-
-    def get_numa_nodes(self):
-        cpu_per_soc = self._get_cores()
-        ret = [str(x * cpu_per_soc) + '-' + str(x * cpu_per_soc + cpu_per_soc -
-                                                1) + ',' + str(
-            x * cpu_per_soc + 2 * cpu_per_soc) + '-' +
-               str(x * cpu_per_soc + 3 * cpu_per_soc - 1) for x in range(2)]
-        return ret
-
-    def _get_cores(self):
-        # get number of real CPUs per socket, assuming a dual-socket,
-        # HT-enabled board (2 * 2)
-        cores = multiprocessing.cpu_count() / (2 * 2)
-        return cores
 
 
 class TestServerNumaTopo(TestServerNumaBase):
