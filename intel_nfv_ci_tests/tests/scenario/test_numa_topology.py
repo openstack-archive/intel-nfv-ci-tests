@@ -50,16 +50,16 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
                         image=self.image_ref, flavor=self.flavor_ref,
                         ssh=self.run_ssh, ssh_user=self.ssh_user))
 
-    def create_flavor_with_numa(self,
-                                numa_nodes=2,
-                                ram=2048,
-                                vcpus=4,
-                                disk=0,
-                                specs=dict()):
+    def create_flavor_with_numa(self):
         flavor_with_numa = data_utils.rand_name('numa_flavor')
         flavor_with_numa_id = data_utils.rand_int_id(start=1000)
-        extra_specs = specs
-        extra_specs["hw:numa_nodes"] = str(numa_nodes)
+
+        ram = 2048
+        vcpus = 4
+        disk = 0
+        extra_specs = {
+            "hw:numa_nodes": "2",
+        }
 
         # Create a flavor with extra specs
         resp = (self.flavors_client.create_flavor(name=flavor_with_numa,
@@ -78,15 +78,14 @@ class TestServerNumaBase(manager.NetworkScenarioTest):
         self.assertEqual(resp.response.status, 202)
         self.flavors_client.wait_for_resource_deletion(flavor_id)
 
-    def boot_instance(self, flavor=None):
+    def boot_instance(self):
         # Create server with image and flavor from input scenario
         security_groups = [{'name': self.security_group['name']}]
         create_kwargs = {
             'key_name': self.keypair['name'],
             'security_groups': security_groups
         }
-        if flavor is None:
-            flavor = self.create_flavor_with_numa()
+        flavor = self.create_flavor_with_numa()
         self.instance = self.create_server(
             image_id=self.image_ref,
             flavor=flavor,
