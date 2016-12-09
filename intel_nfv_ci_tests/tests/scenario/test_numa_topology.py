@@ -42,6 +42,34 @@ class NUMARemoteClient(remote_client.RemoteClient):
         return nodes
 
 
+def get_host_numa_placement(instance, vcpus):
+    """Get placement of instance CPUs on host.
+
+    :param instance: Instance to get placement for.
+    :param vcpus: Number of vCPUs on instance.
+    """
+    out, _ = processutils.execute('ps -eo pid,cmd,args | awk \'/%s/ && '
+                                  '!/grep/ {print $1}\'' %
+                                  instance['id'], shell=True)
+    if not out:
+        return
+
+    cgroup, _ = processutils.execute('grep cpuset /proc/%s/cgroup'
+                                     % out.strip(), shell=True)
+    cgroup = cgroup.split(":")[-1].strip()
+    if cgroup.index('emulator'):
+        cgroup = cgroup + '/..'
+
+    placement = []
+    for i in range(vcpu):
+        cpus, _ = processutils.execute('cgget -n -v -r cpuset.cpus %s'
+                                       % (cgroup.replace('\\', '\\\\') +
+                                          '/vcpu' + str(i)), shell=True)
+        placement.append(cpus.strip())
+
+    return placement
+
+
 class NUMAServersTest(base.BaseV2ComputeAdminTest):
     disk_config = 'AUTO'
 
@@ -87,28 +115,6 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.flavors_client.delete_flavor(flavor_id)
         self.flavors_client.wait_for_resource_deletion(flavor_id)
 
-    def get_placement(self, server, vcpu):
-        out, _ = processutils.execute('ps -eo pid,cmd,args | awk \'/%s/ && '
-                                      '!/grep/ {print $1}\'' %
-                                      server['id'], shell=True)
-        if not out:
-            return
-
-        cgroup, _ = processutils.execute('grep cpuset /proc/%s/cgroup'
-                                         % out.strip(), shell=True)
-        cgroup = cgroup.split(":")[-1].strip()
-        if cgroup.index('emulator'):
-            cgroup = cgroup + '/..'
-
-        placement = []
-        for i in range(vcpu):
-            cpus, _ = processutils.execute('cgget -n -v -r cpuset.cpus %s'
-                                           % (cgroup.replace('\\', '\\\\') +
-                                              '/vcpu' + str(i)), shell=True)
-            placement.append(cpus.strip())
-
-        return placement
-
     def test_verify_created_server_numa_topology(self):
         """Smoke test NUMA support.
 
@@ -141,7 +147,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.assertEqual(2, len(numa_nodes))
 
         # Validate host topology
-        placement = self.get_placement(server, 4)
+        placement = get_host_numa_placement(server, 4)
         self.assertEqual(placement[0], placement[1])
         self.assertNotEqual(placement[1], placement[2])
         self.assertEqual(placement[2], placement[3])
