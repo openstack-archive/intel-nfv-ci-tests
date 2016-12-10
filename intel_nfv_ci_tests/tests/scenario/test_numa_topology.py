@@ -41,7 +41,7 @@ def get_host_numa_placement(instance, vcpus):
                                      % out.strip(), shell=True)
     cgroup = cgroup.split(":")[-1].strip()
     if cgroup.index('emulator'):
-        cgroup = cgroup + '/..'
+        cgroup += '/..'
 
     placement = []
     for i in range(vcpus):
@@ -63,9 +63,7 @@ class NUMARemoteClient(remote_client.RemoteClient):
         for i in range(int(node_count)):
             node_cmd = 'cat /sys/devices/system/node/node%d/' % i
 
-            node = {}
-            node['cpu'] = self.exec_command(node_cmd + 'cpulist')
-            node['mem'] = self.exec_command(node_cmd + 'meminfo')
+            node = {'cpu': self.exec_command(node_cmd + 'cpulist'), 'mem': self.exec_command(node_cmd + 'meminfo')}
             nodes.append(node)
 
         return nodes
@@ -146,7 +144,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
 
         # Validate guest topology
         # TODO(stephenfin): Validate more of the NUMA topology than this
-        numa_nodes = linux_client.get_numa_nodes()
+        numa_nodes = linux_client.get_numa_topology()
         self.assertEqual(2, len(numa_nodes))
 
         # Validate host topology
