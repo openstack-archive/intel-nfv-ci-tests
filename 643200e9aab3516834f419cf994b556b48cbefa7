@@ -1,0 +1,10 @@
+Code-Review+2: Stephen Finucane <sfinucan@redhat.com>
+Verified+1: Intel NFV CI <openstack-nfv-ci@intel.com>
+Code-Review+2: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Workflow+1: Waldemar Znoinski <waldemar.znoinski@intel.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 12 Dec 2016 12:17:35 +0000
+Reviewed-on: https://review.openstack.org/409435
+Project: openstack/intel-nfv-ci-tests
+Branch: refs/heads/master
