@@ -150,7 +150,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.assertEqual(2, len(numa_nodes))
 
         # Validate host topology
-        placement = self.get_placement(server, 4)
+        placement = get_host_numa_placement(server, 4)
         self.assertEqual(placement[0], placement[1])
         self.assertNotEqual(placement[1], placement[2])
         self.assertEqual(placement[2], placement[3])
