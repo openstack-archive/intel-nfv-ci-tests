@@ -19,8 +19,8 @@ from tempest import clients
 from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
 from tempest.lib.common.utils import data_utils
-from tempest.scenario import manager
 
+from intel_nfv_ci_tests.tests.scenario import manager
 
 # Using 2M hugepages
 HUGEPAGE_SIZE = 2048
