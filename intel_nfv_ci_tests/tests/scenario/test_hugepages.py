@@ -118,7 +118,7 @@ class TestHugepages(manager.ScenarioTest):
         self.assertEqual(resp.response.status, 202)
         self.flavors_client.wait_for_resource_deletion(flavor_id)
 
-    def test_hugepage_backed_instance(self):
+    def disable_test_hugepage_backed_instance(self):
         # Check system hugepages
         hugepages_init = int(_get_number_free_hugepages())
         # Calc expected hugepages

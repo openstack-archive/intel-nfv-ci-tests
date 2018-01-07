@@ -117,7 +117,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
 
     @testtools.skipUnless(CONF.validation.run_validation,
                           'Instance validation tests are disabled.')
-    def test_verify_created_server_numa_topology(self):
+    def disable_test_verify_created_server_numa_topology(self):
         """Smoke test NUMA support.
 
         Validates NUMA support by launching an instance with a NUMA

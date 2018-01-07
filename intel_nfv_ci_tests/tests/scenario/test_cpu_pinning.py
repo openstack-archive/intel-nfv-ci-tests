@@ -205,7 +205,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             sib.remove(pcpu)
             self.assertTrue(set(sib).isdisjoint(cpu_pinnings.values()))
 
-    def test_cpu_dedicated_threads_prefer(self):
+    def disable_test_cpu_dedicated_threads_prefer(self):
         """Ensure vCPUs *are* placed on thread siblings."""
         flavor = self._create_flavor(
             cpu_policy='dedicated', cpu_threads_policy='prefer')
