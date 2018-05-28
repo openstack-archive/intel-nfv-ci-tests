@@ -43,6 +43,11 @@ Or, if you have virtualenvwrapper installed, run::
     $ mkvirtualenv intel-nfv-ci-tests
     $ pip install intel-nfv-ci-tests
 
+If you want to hack on the tests themselves, install them in editable mode
+(setuptools develop mode)::
+
+    $ pip install -e
+
 Be aware that this package will not be available if running Tempest in a
 different virtualenv, e.g. via a Tox target.
 
@@ -54,15 +59,11 @@ All test commands should be run from the Tempest install directory, e.g.
 
 To list all Intel NFV CI tempest cases, run::
 
-    $ testr list-tests intel_nfv_ci_tests
+    $ stestr list intel_nfv_ci_tests
 
 To run only these tests, run::
 
-    $ ./run_tempest.sh -N -- intel_nfv_ci_tests
-
-Alternatively, run via ``testr``::
-
-    $ testr run intel_nfv_ci_tests
+    $ stestr run intel_nfv_ci_tests
 
 Or via tox::
 
@@ -70,4 +71,4 @@ Or via tox::
 
 To run a single test case, run with test case name::
 
-    $ ./run_tempest.sh -N -- intel_nfv_ci_tests.tests.scenario.test_hugepages.TestHugepages
+    $ stestr run intel_nfv_ci_tests.tests.scenario.test_hugepages.TestHugepages
