@@ -84,12 +84,6 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         cls.flavors_client = cls.os_admin.flavors_client
         cls.client = cls.servers_client
 
-    @classmethod
-    def resource_setup(cls):
-        # TODO(stephenfin): Do we need this?
-        cls.set_validation_resources()
-        super(NUMAServersTest, cls).resource_setup()
-
     def create_flavor(self):
         flavor_name = data_utils.rand_name('numa_flavor')
         flavor_id = data_utils.rand_int_id(start=1000)
@@ -126,20 +120,21 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         """
         flavor_id = self.create_flavor()
 
-        admin_pass = self.image_ssh_password
+        validation_resources = self.get_test_validation_resources(
+            self.os_primary)
 
         server = self.create_test_server(
             validatable=True,
+            validation_resources=validation_resources,
             wait_until='ACTIVE',
-            adminPass=admin_pass,
             flavor=flavor_id)
+        self.addCleanup(self.delete_server, server['id'])
 
         server = self.client.show_server(server['id'])['server']
         linux_client = NUMARemoteClient(
-            self.get_server_ip(server),
+            self.get_server_ip(server, validation_resources),
             self.ssh_user,
-            admin_pass,
-            self.validation_resources['keypair']['private_key'],
+            pkey=validation_resources['keypair']['private_key'],
             server=server,
             servers_client=self.client)
 
