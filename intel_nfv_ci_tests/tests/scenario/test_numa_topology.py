@@ -81,7 +81,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
     @classmethod
     def setup_clients(cls):
         super(NUMAServersTest, cls).setup_clients()
-        cls.flavors_client = cls.os_adm.flavors_client
+        cls.flavors_client = cls.os_admin.flavors_client
         cls.client = cls.servers_client
 
     @classmethod
