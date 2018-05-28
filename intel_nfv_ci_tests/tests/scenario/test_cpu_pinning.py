@@ -19,9 +19,9 @@ import testtools
 import xml.etree.ElementTree as ET
 
 from tempest.api.compute import base
+from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
-from tempest import test
 
 
 CONF = config.CONF
@@ -85,15 +85,15 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
     @classmethod
     def skip_checks(cls):
         super(CPUPolicyTest, cls).skip_checks()
-        if not test.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
+        if not utils.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
             msg = "OS-FLV-EXT-DATA extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
         super(CPUPolicyTest, cls).setup_clients()
-        cls.flavors_client = cls.os_adm.flavors_client
-        cls.servers_client = cls.os_adm.servers_client
+        cls.flavors_client = cls.os_admin.flavors_client
+        cls.servers_client = cls.os_admin.servers_client
 
     @classmethod
     def resource_setup(cls):
