@@ -69,6 +69,7 @@ def _get_number_free_hugepages(pagesize=HUGEPAGE_SIZE):
 class TestHugepages(manager.ScenarioTest):
     run_ssh = True
     disk_config = 'AUTO'
+    credentials = ['primary', 'admin']
 
     @classmethod
     def setup_credentials(cls):
@@ -83,6 +84,7 @@ class TestHugepages(manager.ScenarioTest):
         self.accessIPv4 = '1.1.1.1'
         self.name = data_utils.rand_name('server')
         self.client = self.servers_client
+        self.flavors_client = self.os_admin.flavors_client
         cli_resp = self.create_server(
             name=self.name,
             flavor=self.create_flavor_with_extra_specs(),
