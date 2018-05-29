@@ -14,6 +14,7 @@
 #    under the License.
 
 import libvirt
+from oslo_concurrency import processutils
 from oslo_log import log as logging
 import socket
 from tempest.lib.common.utils import data_utils
@@ -24,6 +25,7 @@ from tempest.api.compute import base
 from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
+from tempest.lib.common import ssh
 
 
 CONF = config.CONF
@@ -195,6 +197,24 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         return cpu_pinnings
 
+    def _is_smt_enabled(self, server):
+        cmd = 'lscpu'
+        hostname = server['OS-EXT-SRV-ATTR:host']
+        if hostname == socket.gethostname():
+            lscpu = processutils.execute(cmd)
+        else:
+            ssh_client = ssh.Client(hostname, 'root', look_for_keys=True)
+            lscpu = ssh_client.exec_command(cmd)
+        threads_per_core = None
+        for line in lscpu.split('\n'):
+            if 'Thread' in line:
+                LOG.info('Threads per core line is: %s', line)
+                threads_per_core = int(line.split()[-1])
+                LOG.info('Threads per core count is: %d', threads_per_core)
+        if not threads_per_core or threads_per_core == 1:
+            return False
+        return True
+
     def test_cpu_shared(self):
         flavor = self._create_flavor(cpu_policy='shared')
         self._create_server(flavor)
@@ -222,6 +242,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         flavor = self._create_flavor(
             cpu_policy='dedicated', cpu_threads_policy='prefer')
         server = self._create_server(flavor)
+        if not self._is_smt_enabled(server):
+            raise self.skipException('SMT disabled on the host')
         cpu_pinnings = self._get_cpu_pinning(server)
         pcpu_siblings = self._get_host_cpu_siblings(server)
 
