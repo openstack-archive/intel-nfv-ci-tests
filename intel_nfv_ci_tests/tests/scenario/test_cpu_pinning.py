@@ -187,6 +187,21 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         return cpu_pinnings
 
+    def _is_smt_enabled(self, server):
+        cmd = 'lscpu'
+        ssh_client = intel_ci_utils.get_host_ssh_client(
+            self.hypervisor_client, self.servers_client, server['id'])
+        lscpu = ssh_client.exec_command(cmd)
+        threads_per_core = None
+        for line in lscpu.split('\n'):
+            if 'Thread' in line:
+                LOG.info('Threads per core line is: %s', line)
+                threads_per_core = int(line.split()[-1])
+                LOG.info('Threads per core count is: %d', threads_per_core)
+        if not threads_per_core or threads_per_core == 1:
+            return False
+        return True
+
     def test_cpu_shared(self):
         flavor = self._create_flavor(cpu_policy='shared')
         self._create_server(flavor)
@@ -214,6 +229,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         flavor = self._create_flavor(
             cpu_policy='dedicated', cpu_threads_policy='prefer')
         server = self._create_server(flavor)
+        if not self._is_smt_enabled(server):
+            raise self.skipException('SMT disabled on the host')
         cpu_pinnings = self._get_cpu_pinning(server)
         pcpu_siblings = self._get_host_cpu_siblings(server)
 
