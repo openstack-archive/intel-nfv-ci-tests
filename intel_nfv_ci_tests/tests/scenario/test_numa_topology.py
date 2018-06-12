@@ -17,6 +17,7 @@
 from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest.api.compute import base
 from tempest.common.utils.linux import remote_client
+from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 
@@ -152,3 +153,29 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.assertEqual(placement[0], placement[1])
         self.assertNotEqual(placement[1], placement[2])
         self.assertEqual(placement[2], placement[3])
+
+
+class NUMALiveMigrationTest(NUMAServersTest):
+    disk_config = 'AUTO'
+    min_microversion = '2.26'
+
+    def test_numa_live_migration(self):
+        flavor_id = self.create_flavor()
+        validation_resources = self.get_test_validation_resources(
+            self.os_primary)
+        server = self.create_test_server(
+            validatable=True,
+            validation_resources=validation_resources,
+            networks=[{'uuid': self.get_tenant_network()['id']}],
+            wait_until='ACTIVE',
+            flavor=flavor_id)
+        self.addCleanup(self.delete_server, server['id'])
+        source_host = self.servers_admin_client.show_server(
+            server['id'])['server']['OS-EXT-SRV-ATTR:host']
+        self.servers_admin_client.live_migrate_server(
+            server['id'], host=None, block_migration='auto')
+        waiters.wait_for_server_status(self.client, server['id'], 'ACTIVE')
+        server = self.servers_admin_client.show_server(server['id'])['server']
+        dest_host = self.servers_admin_client.show_server(
+            server['id'])['server']['OS-EXT-SRV-ATTR:host']
+        self.assertNotEqual(source_host, dest_host)
