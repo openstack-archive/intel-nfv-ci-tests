@@ -14,14 +14,16 @@
 #    under the License.
 
 from intel_nfv_ci_tests import exceptions
-from tempest import clients, config
+from tempest import clients
 from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
+from tempest import config
 from tempest.lib.common import ssh
 from tempest.lib.common.utils import data_utils
 from tempest.scenario import manager
 
 CONF = config.CONF
+
 
 # Using 2M hugepages
 HUGEPAGE_SIZE = 2048
@@ -99,9 +101,10 @@ class TestHugepages(manager.ScenarioTest):
                 raise exceptions.\
                     HypervisorIPNotFound(server_id=self.server['id'])
             hv_hostname = hv['hypervisor_hostname']
-            hp_dict[hv_hostname] = {'ip': hv_ip,
-                                    'free_hugepages': int(self
-                                        ._get_number_free_hugepages(hv_ip))}
+            hp_dict[hv_hostname] = {
+                'ip': hv_ip,
+                'free_hugepages': int(self._get_number_free_hugepages(hv_ip))
+            }
 
         return hp_dict
 

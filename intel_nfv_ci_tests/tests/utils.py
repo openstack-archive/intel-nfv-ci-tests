@@ -14,10 +14,10 @@
 
 
 from oslo_log import log as logging
-
-from intel_nfv_ci_tests import exceptions
 from tempest import config
 from tempest.lib.common import ssh
+
+from intel_nfv_ci_tests import exceptions
 
 
 CONF = config.CONF
