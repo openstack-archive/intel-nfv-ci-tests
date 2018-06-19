@@ -16,6 +16,8 @@
 
 import os
 
+from intel_nfv_ci_tests import config as intel_ci_config
+from tempest import config
 from tempest.test_discover import plugins
 
 
@@ -28,7 +30,8 @@ class IntelNFVPlugin(plugins.TempestPlugin):
         return full_test_dir, base_path
 
     def register_opts(self, conf):
-        pass
+        config.register_opt_group(conf, intel_ci_config.group,
+                                  intel_ci_config.opts)
 
     def get_opt_lists(self):
-        pass
+        return [(intel_ci_config.group.name, intel_ci_config.opts)]
