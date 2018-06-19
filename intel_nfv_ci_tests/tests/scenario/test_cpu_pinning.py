@@ -14,10 +14,12 @@
 #    under the License.
 
 import libvirt
+from oslo_log import log as logging
 from tempest.lib.common.utils import data_utils
 import testtools
 import xml.etree.ElementTree as ET
 
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest.api.compute import base
 from tempest.common import utils
 from tempest.common import waiters
@@ -25,55 +27,7 @@ from tempest import config
 
 
 CONF = config.CONF
-
-
-def get_siblings_list(sib):
-    """
-    list of siblings can consist of comma-separated lists (0,5,6)
-    or hyphen-separated ranges (0-3) or both
-
-    Test a combination of '-' and ','
-    >>> get_siblings_list('0-2,3,4,5-6,9')
-    [0, 1, 2, 3, 4, 5, 6, 9]
-    """
-    siblings = []
-    for sub_sib in sib.split(','):
-        if '-' in sub_sib:
-            start_sib, end_sib = sub_sib.split('-')
-            siblings.extend(range(int(start_sib),
-                                  int(end_sib) + 1))
-        else:
-            siblings.append(int(sub_sib))
-
-    return siblings
-
-
-def get_host_cpu_siblings():
-    """Return core to sibling mapping of the host CPUs
-
-        {core_0: [sibling_a, sibling_b, ...],
-         core_1: [sibling_a, sibling_b, ...],
-         ...}
-
-    libvirt's getCapabilities() is called to get details about the host
-    then a list of siblings per CPU is extracted and formatted to single level
-    list
-    """
-    siblings = {}
-    conn = libvirt.openReadOnly('qemu:///system')
-    capxml = ET.fromstring(conn.getCapabilities())
-    cpu_cells = capxml.findall('./host/topology/cells/cell/cpus')
-
-    for cell in cpu_cells:
-        cpus = cell.findall('cpu')
-        for cpu in cpus:
-            cpu_id = int(cpu.get('id'))
-            sib = cpu.get('siblings')
-            _siblings = get_siblings_list(sib)
-
-            siblings.update({cpu_id: _siblings})
-
-    return siblings
+LOG = logging.getLogger(__name__)
 
 
 class CPUPolicyTest(base.BaseV2ComputeAdminTest):
@@ -94,6 +48,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         super(CPUPolicyTest, cls).setup_clients()
         cls.flavors_client = cls.os_admin.flavors_client
         cls.servers_client = cls.os_admin.servers_client
+        cls.hypervisor_client = cls.os_admin.hypervisor_client
 
     @classmethod
     def resource_setup(cls):
@@ -170,10 +125,59 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
 
         return server
 
+    def get_siblings_list(self, sib):
+        """
+        list of siblings can consist of comma-separated lists (0,5,6)
+        or hyphen-separated ranges (0-3) or both
+
+        Test a combination of '-' and ','
+        >>> get_siblings_list('0-2,3,4,5-6,9')
+        [0, 1, 2, 3, 4, 5, 6, 9]
+        """
+        siblings = []
+        for sub_sib in sib.split(','):
+            if '-' in sub_sib:
+                start_sib, end_sib = sub_sib.split('-')
+                siblings.extend(range(int(start_sib),
+                                      int(end_sib) + 1))
+            else:
+                siblings.append(int(sub_sib))
+
+        return siblings
+
+    def _get_host_cpu_siblings(self, server):
+        """Return core to sibling mapping of the CPUs on the server's host
+
+            {core_0: [sibling_a, sibling_b, ...],
+             core_1: [sibling_a, sibling_b, ...],
+             ...}
+
+        libvirt's getCapabilities() is called to get details about the host
+        then a list of siblings per CPU is extracted and formatted to single
+        level list
+        """
+        siblings = {}
+        conn = libvirt.openReadOnly(intel_ci_utils.get_host_libvirt_uri(
+            self.hypervisor_client, self.servers_client, server['id']))
+        capxml = ET.fromstring(conn.getCapabilities())
+        cpu_cells = capxml.findall('./host/topology/cells/cell/cpus')
+
+        for cell in cpu_cells:
+            cpus = cell.findall('cpu')
+            for cpu in cpus:
+                cpu_id = int(cpu.get('id'))
+                sib = cpu.get('siblings')
+                _siblings = self.get_siblings_list(sib)
+
+                siblings.update({cpu_id: _siblings})
+
+        return siblings
+
     def _get_cpu_pinning(self, server):
         instance_name = server['OS-EXT-SRV-ATTR:instance_name']
 
-        conn = libvirt.openReadOnly('qemu:///system')
+        conn = libvirt.openReadOnly(intel_ci_utils.get_host_libvirt_uri(
+            self.hypervisor_client, self.servers_client, server['id']))
         dom0 = conn.lookupByName(instance_name)
         root = ET.fromstring(dom0.XMLDesc())
 
@@ -193,7 +197,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             cpu_policy='dedicated', cpu_threads_policy='isolate')
         server = self._create_server(flavor)
         cpu_pinnings = self._get_cpu_pinning(server)
-        pcpu_siblings = get_host_cpu_siblings()
+        pcpu_siblings = self._get_host_cpu_siblings(server)
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
@@ -211,7 +215,7 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
             cpu_policy='dedicated', cpu_threads_policy='prefer')
         server = self._create_server(flavor)
         cpu_pinnings = self._get_cpu_pinning(server)
-        pcpu_siblings = get_host_cpu_siblings()
+        pcpu_siblings = self._get_host_cpu_siblings(server)
 
         self.assertEqual(len(cpu_pinnings), self.vcpus)
 
