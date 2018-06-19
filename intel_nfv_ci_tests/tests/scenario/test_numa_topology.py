@@ -14,14 +14,15 @@
 #    under the License.
 
 
-from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest.api.compute import base
 from tempest.common.utils.linux import remote_client
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
-
 import testtools
+
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
+
 
 CONF = config.CONF
 
