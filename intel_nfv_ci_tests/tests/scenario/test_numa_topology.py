@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_concurrency import processutils
 
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest.api.compute import base
 from tempest.common.utils.linux import remote_client
 from tempest import config
@@ -23,34 +23,6 @@ from tempest.lib.common.utils import data_utils
 import testtools
 
 CONF = config.CONF
-
-
-def get_host_numa_placement(instance, vcpus):
-    """Get placement of instance CPUs on host.
-
-    :param instance: Instance to get placement for.
-    :param vcpus: Number of vCPUs on instance.
-    """
-    out, _ = processutils.execute('ps -eo pid,cmd,args | awk \'/%s/ && '
-                                  '!/grep/ {print $1}\'' %
-                                  instance['id'], shell=True)
-    if not out:
-        return
-
-    cgroup, _ = processutils.execute('grep cpuset /proc/%s/cgroup'
-                                     % out.strip(), shell=True)
-    cgroup = cgroup.split(":")[-1].strip()
-    if cgroup.index('emulator'):
-        cgroup += '/..'
-
-    placement = []
-    for i in range(vcpus):
-        cpus, _ = processutils.execute('cgget -n -v -r cpuset.cpus %s'
-                                       % (cgroup.replace('\\', '\\\\') +
-                                          '/vcpu' + str(i)), shell=True)
-        placement.append(cpus.strip())
-
-    return placement
 
 
 class NUMARemoteClient(remote_client.RemoteClient):
@@ -83,6 +55,8 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         super(NUMAServersTest, cls).setup_clients()
         cls.flavors_client = cls.os_admin.flavors_client
         cls.client = cls.servers_client
+        cls.servers_admin_client = cls.os_admin.servers_client
+        cls.hypervisor_client = cls.os_admin.hypervisor_client
 
     def create_flavor(self):
         flavor_name = data_utils.rand_name('numa_flavor')
@@ -104,6 +78,35 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.addCleanup(self.flavor_clean_up, flavor['id'])
 
         return flavor['id']
+
+    def get_host_numa_placement(self, server, vcpus):
+        """Get placement of instance CPUs on host.
+
+        :param server: Instance to get placement for.
+        :param vcpus: Number of vCPUs on instance.
+        """
+        ssh_client = intel_ci_utils.get_host_ssh_client(
+            self.hypervisor_client, self.servers_admin_client, server['id'])
+        cmd = ("ps -eo pid,cmd,args | "
+               "awk '/%s/ && !/grep/ {print $1}'" % server['id'])
+        out = ssh_client.exec_command(cmd)
+        if not out:
+            return
+
+        cgroup = ssh_client.exec_command(
+            'grep cpuset /proc/%s/cgroup' % out.strip())
+        cgroup = cgroup.split(":")[-1].strip()
+        if cgroup.index('emulator'):
+            cgroup += '/..'
+
+        placement = []
+        for i in range(vcpus):
+            cpus = ssh_client.exec_command(
+                'cgget -n -v -r cpuset.cpus '
+                '%s/vcpu%d' % (cgroup.replace('\\', '\\\\'), i))
+            placement.append(cpus.strip())
+
+        return placement
 
     def flavor_clean_up(self, flavor_id):
         self.flavors_client.delete_flavor(flavor_id)
@@ -145,7 +148,7 @@ class NUMAServersTest(base.BaseV2ComputeAdminTest):
         self.assertEqual(2, len(numa_nodes))
 
         # Validate host topology
-        placement = get_host_numa_placement(server, 4)
+        placement = self.get_host_numa_placement(server, 4)
         self.assertEqual(placement[0], placement[1])
         self.assertNotEqual(placement[1], placement[2])
         self.assertEqual(placement[2], placement[3])
