@@ -13,8 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import subprocess
-
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest import clients
 from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
@@ -24,46 +23,6 @@ from tempest.scenario import manager
 
 # Using 2M hugepages
 HUGEPAGE_SIZE = 2048
-
-
-def command(args, args2=None):
-    '''
-    Command: returns the output of the given command(s)
-    Input: up to 2 commands
-    Output: String representing the output of these commands
-
-    Note: Using shell=False means that the following are unsupported:
-        - Using pipes: Separate your commands
-              i.e. "cat /dev/null | grep anything" ->
-                       ["cat", "/dev/null"], ["grep", "anything"]
-        - Using wildcards: use glob to expand wildcards in dir listings
-            i.e. ["cat", "/proc/*info"]  ->
-                    ["cat"]+glob.glob("/proc/*info")
-        - String in commands: split manually
-              e.g. awk {'print $2'} -> str.split()[1]
-    '''
-    if args2:
-        process1 = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                    shell=False)
-
-        process2 = subprocess.Popen(args2, stdin=process1.stdout,
-                                    stdout=subprocess.PIPE, shell=False)
-        # Allow process_curl to receive a SIGPIPE if process_wc exits.
-        process1.stdout.close()
-        return process2.communicate()[0]
-
-    else:
-        return subprocess.Popen(args,
-                                stdout=subprocess.PIPE,
-                                shell=False).communicate()[0]
-
-
-def _get_number_free_hugepages(pagesize=HUGEPAGE_SIZE):
-    # original command:
-    #    "cat /sys/kernel/mm/hugepages/hugepages-${size}kB/"
-    return command(["cat",
-                    "/sys/kernel/mm/hugepages/hugepages-{}kB/free_hugepages"
-                    .format(pagesize)])
 
 
 class TestHugepages(manager.ScenarioTest):
@@ -77,6 +36,12 @@ class TestHugepages(manager.ScenarioTest):
         cls.manager = clients.Manager(
             credentials=common_creds.get_configured_admin_credentials(
                 fill_in=False))
+
+    @classmethod
+    def setup_clients(cls):
+        super(TestHugepages, cls).setup_clients()
+        cls.admin_servers_client = cls.os_admin.servers_client
+        cls.hypervisor_client = cls.os_admin.hypervisor_client
 
     def setUp(self):
         super(TestHugepages, self).setUp()
@@ -92,7 +57,8 @@ class TestHugepages(manager.ScenarioTest):
         self.server_initial = cli_resp
         waiters.wait_for_server_status(self.client, self.server_initial['id'],
                                        'ACTIVE')
-        self.server = self.client.show_server(self.server_initial['id'])
+        self.server = self.admin_servers_client.show_server(
+            self.server_initial['id'])
 
     def create_flavor_with_extra_specs(self, name='hugepages_flavor', count=1):
         flavor_with_hugepages_name = data_utils.rand_name(name)
@@ -120,9 +86,17 @@ class TestHugepages(manager.ScenarioTest):
         self.assertEqual(resp.response.status, 202)
         self.flavors_client.wait_for_resource_deletion(flavor_id)
 
+    def _get_number_free_hugepages(self, pagesize=HUGEPAGE_SIZE):
+        cmd = ('cat /sys/kernel/mm/hugepages/'
+               'hugepages-%dkB/free_hugepages' % pagesize)
+        ssh_client = intel_ci_utils.get_host_ssh_client(
+            self.hypervisor_client, self.admin_servers_client,
+            self.server['server']['id'])
+        return ssh_client.exec_command(cmd)
+
     def test_hugepage_backed_instance(self):
         # Check system hugepages
-        hugepages_init = int(_get_number_free_hugepages())
+        hugepages_init = int(self._get_number_free_hugepages())
         # Calc expected hugepages
         # flavor memory/hugepage_size, rounded up
         # create instance with hugepages flavor
@@ -133,7 +107,7 @@ class TestHugepages(manager.ScenarioTest):
 
         required_hugepages = 64 / (HUGEPAGE_SIZE / 1024.)  # ram/hugepages_size
         expected_hugepages = int(hugepages_init - required_hugepages)
-        actual_hugepages = int(_get_number_free_hugepages(HUGEPAGE_SIZE))
+        actual_hugepages = int(self._get_number_free_hugepages())
 
         self.assertEqual(required_hugepages, 32)
         self.assertEqual(expected_hugepages, actual_hugepages)
