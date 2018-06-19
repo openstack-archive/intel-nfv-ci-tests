@@ -13,17 +13,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import libvirt
-from oslo_log import log as logging
-from tempest.lib.common.utils import data_utils
-import testtools
+
 import xml.etree.ElementTree as ET
 
-from intel_nfv_ci_tests.tests import utils as intel_ci_utils
+import libvirt
+from oslo_log import log as logging
 from tempest.api.compute import base
 from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
+from tempest.lib.common.utils import data_utils
+import testtools
+
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 
 
 CONF = config.CONF
@@ -31,10 +33,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CPUPolicyTest(base.BaseV2ComputeAdminTest):
-
-    """
-    Tests CPU policy support.
-    """
+    """Tests CPU policy support."""
 
     @classmethod
     def skip_checks(cls):
@@ -126,9 +125,8 @@ class CPUPolicyTest(base.BaseV2ComputeAdminTest):
         return server
 
     def get_siblings_list(self, sib):
-        """
-        list of siblings can consist of comma-separated lists (0,5,6)
-        or hyphen-separated ranges (0-3) or both
+        """List of siblings can consist of comma-separated lists (0,5,6)
+        or hyphen-separated ranges (0-3) or both.
 
         Test a combination of '-' and ','
         >>> get_siblings_list('0-2,3,4,5-6,9')

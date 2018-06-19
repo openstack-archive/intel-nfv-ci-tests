@@ -13,12 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 from tempest import clients
 from tempest.common import credentials_factory as common_creds
 from tempest.common import waiters
 from tempest.lib.common.utils import data_utils
 from tempest.scenario import manager
+
+from intel_nfv_ci_tests.tests import utils as intel_ci_utils
 
 
 # Using 2M hugepages
@@ -53,7 +54,7 @@ class TestHugepages(manager.ScenarioTest):
         cli_resp = self.create_server(
             name=self.name,
             flavor=self.create_flavor_with_extra_specs(),
-            )
+        )
         self.server_initial = cli_resp
         waiters.wait_for_server_status(self.client, self.server_initial['id'],
                                        'ACTIVE')
