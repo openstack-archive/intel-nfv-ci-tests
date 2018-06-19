@@ -16,9 +16,10 @@
 
 import os
 
-from intel_nfv_ci_tests import config as intel_ci_config
 from tempest import config
 from tempest.test_discover import plugins
+
+from intel_nfv_ci_tests import config as intel_ci_config
 
 
 class IntelNFVPlugin(plugins.TempestPlugin):
