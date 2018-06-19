@@ -27,6 +27,7 @@ the following platform features are required:
 * A NUMA topology is required. This will generally mean a dual-socket board or
   a CPU with Cluster-on-Die technology
 * Hugepages must be supported
+* Package cgroup-tools (.deb) or libcgroup-tools (.rpm) must be installed
 
 Installation
 ------------
