@@ -1,0 +1,9 @@
+Code-Review+2: sean mooney <work@seanmooney.info>
+Code-Review+1: Felipe Monteiro <felipe.monteiro@att.com>
+Workflow+1: sean mooney <work@seanmooney.info>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 17 Jul 2018 16:51:17 +0000
+Reviewed-on: https://review.openstack.org/570815
+Project: openstack/intel-nfv-ci-tests
+Branch: refs/heads/master
