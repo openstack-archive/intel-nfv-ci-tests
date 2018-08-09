@@ -42,7 +42,8 @@ def get_host_libvirt_uri(hvs_client, servers_admin_client, server_id):
                                              server_id)
     if not hv_ip:
         raise exceptions.HypervisorIPNotFound(server_id=server_id)
-    return 'qemu+ssh://%s@%s/system' % (CONF.intel_nfv_ci.qemu_ssh_user, hv_ip)
+    return 'qemu+ssh://%s@%s/system?no_verify=1' \
+           % (CONF.intel_nfv_ci.qemu_ssh_user, hv_ip)
 
 
 def get_host_ssh_client(hvs_client, servers_admin_client, server_id):
