@@ -1,3 +1,4 @@
 tempest-lib>=0.13.0
 oslo.concurrency>=2.3.0
 oslo.log>=1.6.0
+libvirt-python==4.6.0
