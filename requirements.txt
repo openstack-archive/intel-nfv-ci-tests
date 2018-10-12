@@ -1,4 +1,4 @@
-tempest-lib>=0.13.0
-oslo.concurrency>=2.3.0
-oslo.log>=1.6.0
+tempest>=19.0.0
+oslo.concurrency>=3.25.1
+oslo.log>=3.36.0
 libvirt-python>=4.6.0
